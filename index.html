@@ -61,5 +61,28 @@
       </ul>
     </div>
   </div>
+  <script>
+    var wheel = document.querySelector('.zz-wheel');
+    var ul = wheel.children[0];
+    var initY = 0;
+
+    wheel.addEventListener('touchstart', touchstart);
+
+    function touchstart(e) {
+      initY = initY || e.changedTouches[0].clientY
+      this.addEventListener('touchmove', touchmove);
+      this.addEventListener('touchend', touchend);
+    }
+
+    function touchmove(e) {
+      console.log(e.changedTouches[0].clientY - initY);
+      ul.style.transform = 'translateY('+ (e.changedTouches[0].clientY - initY)+'px)';
+    }
+
+    function touchend(e) {
+      this.removeEventListener('touchmove', touchmove);
+      this.removeEventListener('touchend', touchend);
+    }
+  </script>
 </body>
 </html>
