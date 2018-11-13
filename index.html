@@ -47,7 +47,7 @@
 <body>
   <div class="zz-picker">
     <div class="zz-wheel">
-      <ul>
+      <ul data-y="0">
         <li>1</li>
         <li>2</li>
         <li>3</li>
@@ -69,17 +69,19 @@
     wheel.addEventListener('touchstart', touchstart);
 
     function touchstart(e) {
-      initY = initY || e.changedTouches[0].clientY
+      console.log(ul.dataset.y);
+      initY = e.changedTouches[0].clientY
       this.addEventListener('touchmove', touchmove);
       this.addEventListener('touchend', touchend);
     }
 
     function touchmove(e) {
       console.log(e.changedTouches[0].clientY - initY);
-      ul.style.transform = 'translateY('+ (e.changedTouches[0].clientY - initY)+'px)';
+      ul.style.transform = 'translateY('+ (+ul.dataset.y + e.changedTouches[0].clientY - initY)+'px)';
     }
 
     function touchend(e) {
+      ul.dataset.y = +ul.dataset.y + e.changedTouches[0].clientY - initY;
       this.removeEventListener('touchmove', touchmove);
       this.removeEventListener('touchend', touchend);
     }
