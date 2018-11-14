@@ -81,7 +81,13 @@
     }
 
     function touchend(e) {
-      ul.dataset.y = +ul.dataset.y + e.changedTouches[0].clientY - initY;
+      var y = +ul.dataset.y + e.changedTouches[0].clientY - initY;
+      y = Math.round(y / 30);
+      y = y >= 0 ? 0 : y;
+      y = y <= -9 ? -9 : y;
+      y = y * 30;
+      ul.style.transform = 'translateY(' + y + 'px)';
+      ul.dataset.y = y;
       this.removeEventListener('touchmove', touchmove);
       this.removeEventListener('touchend', touchend);
     }
