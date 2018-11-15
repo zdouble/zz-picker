@@ -42,6 +42,9 @@
     height: 30px;
     line-height: 30px;
   }
+  .zz-transtion {
+    transition: all 0.5s;
+  }
   </style>
 </head>
 <body>
@@ -69,18 +72,18 @@
     wheel.addEventListener('touchstart', touchstart);
 
     function touchstart(e) {
-      console.log(ul.dataset.y);
+      ul.classList.remove('zz-transtion')
       initY = e.changedTouches[0].clientY
       this.addEventListener('touchmove', touchmove);
       this.addEventListener('touchend', touchend);
     }
 
     function touchmove(e) {
-      console.log(e.changedTouches[0].clientY - initY);
       ul.style.transform = 'translateY('+ (+ul.dataset.y + e.changedTouches[0].clientY - initY)+'px)';
     }
 
     function touchend(e) {
+      ul.classList.add('zz-transtion')
       var y = +ul.dataset.y + e.changedTouches[0].clientY - initY;
       y = Math.round(y / 30);
       y = y >= 0 ? 0 : y;
