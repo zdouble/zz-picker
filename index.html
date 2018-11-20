@@ -6,34 +6,50 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <style>
+  .zz-picker {
+    color: #333;
+    font-size: 16px;
+  }
+  .zz-control {
+    overflow: hidden;
+    padding: 10px;
+  }
+  .zz-control .cancel {
+    float: left;
+  }
+  .zz-control .confirm {
+    float: right;
+  }
   .zz-wheel {
-    height: 200px;
+    height: 150px;
     overflow: hidden;
     position: relative;
+    color: #333;
   }
-  /* .zz-wheel::before {
+  .zz-wheel::before,
+  .zz-wheel::after {
     content: "";
     position: absolute;
-    width: 100%;
-    height: 1px;
-    background: rgba(0,0,0,0.5);
-    top: 50%;
-  } */
-  .zz-wheel::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 30px;
-    top: 90px;
-    border-bottom: 1px solid rgba(0,0,0,0.5);
-    border-top: 1px solid rgba(0,0,0,0.5);
     box-sizing: border-box;
+    width: 100%;
+    height: 60px;
+    z-index: 1;
+  }
+  .zz-wheel::before {
+    top: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.3);
+     background: linear-gradient(rgba(255,255,255,0.9),rgba(255,255,255,0.4));
+  }
+  .zz-wheel::after {
+    bottom: 0;
+    border-top: 1px solid rgba(0,0,0,0.3);
+    background: linear-gradient(to top, rgba(255,255,255,0.9),rgba(255,255,255,0.4));
   }
   .zz-wheel ul {
     margin: 0;
     padding: 0;
     position: absolute;
-    top: 90px;
+    top: 60px;
     width: 100%;
   }
   .zz-wheel li {
@@ -49,6 +65,10 @@
 </head>
 <body>
   <div class="zz-picker">
+    <div class="zz-control">
+      <span class="cancel">取消</span>
+      <span class="confirm">确定</span>
+    </div>
     <div class="zz-wheel">
       <ul data-y="0">
         <li>1</li>
@@ -79,7 +99,7 @@
     }
 
     function touchmove(e) {
-      ul.style.transform = 'translateY('+ (+ul.dataset.y + e.changedTouches[0].clientY - initY)+'px)';
+      ul.style.transform = 'translate3d(0,'+ (+ul.dataset.y + e.changedTouches[0].clientY - initY)+'px,0)';
     }
 
     function touchend(e) {
@@ -89,7 +109,7 @@
       y = y >= 0 ? 0 : y;
       y = y <= -9 ? -9 : y;
       y = y * 30;
-      ul.style.transform = 'translateY(' + y + 'px)';
+      ul.style.transform = 'translate3d(0, ' + y + 'px, 0)';
       ul.dataset.y = y;
       this.removeEventListener('touchmove', touchmove);
       this.removeEventListener('touchend', touchend);
