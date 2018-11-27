@@ -10,16 +10,6 @@
     color: #333;
     font-size: 16px;
   }
-  .zz-control {
-    overflow: hidden;
-    padding: 10px;
-  }
-  .zz-control .cancel {
-    float: left;
-  }
-  .zz-control .confirm {
-    float: right;
-  }
   .zz-wheel {
     height: 150px;
     overflow: hidden;
@@ -65,10 +55,6 @@
 </head>
 <body>
   <!-- <div class="zz-picker">
-    <div class="zz-control">
-      <span class="cancel">取消</span>
-      <span class="confirm">确定</span>
-    </div>
     <div class="zz-wheel">
       <ul data-y="0">
         <li>1</li>
@@ -89,7 +75,9 @@
       this.data = options.data || [];
       this.defaultSelectValue = options.defaultSelectValue || 0;
       this.onChange = options.onChange;
+      this.target = document.querySelector(options.target);
       this.wheel = null;
+      this.index = 0;
       this.initUI();
       this.bindEvent();
     }
@@ -98,54 +86,67 @@
       var picker = document.createElement('div');
       picker.className = 'zz-picker';
       picker.innerHTML = 
-      '<div class="zz-control">'+
-        '<span class="cancel"> 取消</span>'+
-        '<span class="confirm">确定</span>'+
-      '</div>'+
       '<div class="zz-wheel">'+
         '<ul></ul>'+
       '</div>';
 
       this.wheel = picker.querySelector('.zz-wheel');
-      var ul = this.wheel.children[0];
+      this.ul = this.wheel.children[0];
+      this.index = this.computedDefaultSelectValueIndex();
+      this.createDom(this.ul);
+      this.onChange(this.data[this.index].value, this.data[this.index].text);
+      this.target.appendChild(picker);
+    }
+
+    Picker.prototype.createDom = function (dom) {
       var strLi = '';
       for (var i = 0; i < this.data.length; i++) {
-        strLi += '<li value='+this.data[i].value+'>'+this.data[i].text+'</li>'
+        strLi += '<li value=' + this.data[i].value + '>' + this.data[i].text + '</li>';
       }
-      var initY = -this.computedDefaultSelectValueIndex() * 30
-      ul.dataset.y = initY;
-      ul.style.transform = 'translate3d(0, ' + initY + 'px, 0)';
-      ul.innerHTML = strLi;
-      document.body.appendChild(picker);
+      var initY = -this.index * 30;
+      dom.dataset.y = initY;
+      dom.style.transform = 'translate3d(0, ' + initY + 'px, 0)';
+      dom.innerHTML = strLi;
+    }
+
+    Picker.prototype.refill = function (data) {
+      this.data = data;
+      this.index = this.index > this.data.length ? 0 : this.index;
+      var ul = this.wheel.children[0];
+      this.createDom(ul);
+      this.onChange(this.data[this.index].value, this.data[this.index].text);
     }
     
     Picker.prototype.bindEvent = function () {
-      var ul = this.wheel.children[0];
       var startY;
       var _this = this;
       this.wheel.addEventListener('touchstart', touchstart);
 
       function touchstart(e) {
-        ul.classList.remove('zz-transtion')
-        startY = e.changedTouches[0].clientY
+        _this.ul.classList.remove('zz-transtion');
+        startY = e.changedTouches[0].clientY;
         this.addEventListener('touchmove', touchmove);
         this.addEventListener('touchend', touchend);
       }
 
       function touchmove(e) {
-        ul.style.transform = 'translate3d(0,'+ (+ul.dataset.y + e.changedTouches[0].clientY - startY)+'px,0)';
+        _this.ul.style.transform = 'translate3d(0,'+ (+_this.ul.dataset.y + e.changedTouches[0].clientY - startY)+'px,0)';
       }
 
       function touchend(e) {
-        ul.classList.add('zz-transtion')
-        var y = +ul.dataset.y + e.changedTouches[0].clientY - startY;
+        _this.ul.classList.add('zz-transtion');
+        var y = +_this.ul.dataset.y + e.changedTouches[0].clientY - startY;
         y = Math.round(y / 30);
         y = y >= 0 ? 0 : y;
         y = y <= -(_this.data.length - 1) ? -(_this.data.length - 1) : y;
-        _this.onChange(_this.data[Math.abs(y)].value);
+        var prveIndex = _this.index;
+        _this.index = Math.abs(y);
+        if(prveIndex !== _this.index){
+          _this.onChange(_this.data[_this.index].value, _this.data[_this.index].text);
+        }
         y = y * 30;
-        ul.style.transform = 'translate3d(0, ' + y + 'px, 0)';
-        ul.dataset.y = y;
+        _this.ul.style.transform = 'translate3d(0, ' + y + 'px, 0)';
+        _this.ul.dataset.y = y;
         
         this.removeEventListener('touchmove', touchmove);
         this.removeEventListener('touchend', touchend);
@@ -155,14 +156,16 @@
     Picker.prototype.computedDefaultSelectValueIndex = function () {
       for (let i = 0; i < this.data.length; i++) {
         if(this.defaultSelectValue === this.data[i].value){
-          return i
+          return i;
         }
       }
+      return 0;
     }
     var picker = new Picker({
+      target: 'body',
       defaultSelectValue: 5,
-      onChange: function (value) {
-        console.log(value);
+      onChange: function (value,text) {
+        console.log(value, text);
       },
       data: [
         {
@@ -215,6 +218,30 @@
         }
       ]
     })
+    setTimeout(() => {
+      picker.refill([
+        {
+          text: '里三',
+          value: 1
+        },
+        {
+          text: '李四',
+          value: 2
+        },
+        {
+          text: '王五',
+          value: 3
+        },
+        {
+          text: '赵六',
+          value: 4
+        },
+        {
+          text: '吴七',
+          value: 5
+        },
+      ])
+    }, 5000);
     // var wheel = document.querySelector('.zz-wheel');
     // var ul = wheel.children[0];
     // var initY = 0;
