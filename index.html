@@ -78,6 +78,7 @@
       this.target = document.querySelector(options.target);
       this.wheel = null;
       this.index = 0;
+      this.raf = null;
       this.initUI();
       this.bindEvent();
     }
@@ -93,12 +94,12 @@
       this.wheel = picker.querySelector('.zz-wheel');
       this.ul = this.wheel.children[0];
       this.index = this.computedDefaultSelectValueIndex();
-      this.createDom(this.ul);
+      this.createLi(this.ul);
       this.onChange(this.data[this.index].value, this.data[this.index].text);
       this.target.appendChild(picker);
     }
 
-    Picker.prototype.createDom = function (dom) {
+    Picker.prototype.createLi = function (dom) {
       var strLi = '';
       for (var i = 0; i < this.data.length; i++) {
         strLi += '<li value=' + this.data[i].value + '>' + this.data[i].text + '</li>';
@@ -113,7 +114,7 @@
       this.data = data;
       this.index = this.index > this.data.length ? 0 : this.index;
       var ul = this.wheel.children[0];
-      this.createDom(ul);
+      this.createLi(ul);
       this.onChange(this.data[this.index].value, this.data[this.index].text);
     }
     
@@ -130,7 +131,9 @@
       }
 
       function touchmove(e) {
-        _this.ul.style.transform = 'translate3d(0,'+ (+_this.ul.dataset.y + e.changedTouches[0].clientY - startY)+'px,0)';
+        _this.raf = requestAnimationFrame(function () {
+          _this.ul.style.transform = 'translate3d(0,' + (+_this.ul.dataset.y + e.changedTouches[0].clientY - startY) + 'px,0)';
+        })
       }
 
       function touchend(e) {
@@ -147,7 +150,7 @@
         y = y * 30;
         _this.ul.style.transform = 'translate3d(0, ' + y + 'px, 0)';
         _this.ul.dataset.y = y;
-        
+        cancelAnimationFrame(_this.raf);
         this.removeEventListener('touchmove', touchmove);
         this.removeEventListener('touchend', touchend);
       }
